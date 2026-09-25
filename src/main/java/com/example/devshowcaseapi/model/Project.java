@@ -1,11 +1,12 @@
 package com.example.devshowcaseapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "tb_projects")
@@ -24,6 +25,16 @@ public class Project {
     @Column(nullable = false)
     private String repositoryUrl;
 
+    @Column(nullable = false)
+    private Integer upvotes = 0;
+
+    @Column(nullable = false)
+    private Double averageRating = 0.0;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_id")
+    private Profile profile;
+
     @ManyToMany
     @JoinTable(
             name = "tb_project_technologies",
@@ -31,6 +42,10 @@ public class Project {
             inverseJoinColumns = @JoinColumn(name = "technology_id")
     )
     private Set<Technology> technologies = new HashSet<>();
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Feedback> feedbacks = new ArrayList<>();
 
     public Project() {
     }
@@ -40,6 +55,8 @@ public class Project {
         this.title = title;
         this.description = description;
         this.repositoryUrl = repositoryUrl;
+        this.upvotes = 0;
+        this.averageRating = 0.0;
     }
 
     public Long getId() {
@@ -74,12 +91,44 @@ public class Project {
         this.repositoryUrl = repositoryUrl;
     }
 
+    public Integer getUpvotes() {
+        return upvotes;
+    }
+
+    public void setUpvotes(Integer upvotes) {
+        this.upvotes = upvotes;
+    }
+
+    public Double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
+    }
+
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+    }
+
     public Set<Technology> getTechnologies() {
         return technologies;
     }
 
     public void setTechnologies(Set<Technology> technologies) {
         this.technologies = technologies;
+    }
+
+    public List<Feedback> getFeedbacks() {
+        return feedbacks;
+    }
+
+    public void setFeedbacks(List<Feedback> feedbacks) {
+        this.feedbacks = feedbacks;
     }
 
     @Override
@@ -93,28 +142,5 @@ public class Project {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "profile_id")
-    private Profile profile;
-
-    public Profile getProfile() {
-        return profile;
-    }
-
-    public void setProfile(Profile profile) {
-        this.profile = profile;
-    }
-
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Feedback> feedbacks = new ArrayList<>();
-
-    public List<Feedback> getFeedbacks() {
-        return feedbacks;
-    }
-
-    public void setFeedbacks(List<Feedback> feedbacks) {
-        this.feedbacks = feedbacks;
     }
 }
